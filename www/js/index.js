@@ -21,6 +21,14 @@ var app = {
     initialize: function() {
         this.initElems();
         this.bindEvents();
+	navigator.geolocation.getCurrentPosition(function(res) {
+		console.log('res', res);
+	var coords = [res.coords.longitude,res.coords.latitude]
+	console.log('https://geocode-maps.yandex.ru/1.x/?geocode='+coords.join(',')+'&format=json');
+	$.getJSON('https://geocode-maps.yandex.ru/1.x/?geocode='+coords.join(',')+'&format=json', function(result) {
+		console.log(result);
+	});
+	})
     },
 
     initElems: function() {
