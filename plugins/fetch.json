@@ -6,5 +6,14 @@
         },
         "is_top_level": true,
         "variables": {}
+    },
+    "cordova-plugin-app-preferences": {
+        "source": {
+            "type": "git",
+            "url": "https://github.com/apla/me.apla.cordova.app-preferences",
+            "subdir": "."
+        },
+        "is_top_level": true,
+        "variables": {}
     }
 }

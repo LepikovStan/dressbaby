@@ -1,22 +1,4 @@
 <!DOCTYPE html>
-<!--
-    Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements.  See the NOTICE file
-    distributed with this work for additional information
-    regarding copyright ownership.  The ASF licenses this file
-    to you under the Apache License, Version 2.0 (the
-    "License"); you may not use this file except in compliance
-    with the License.  You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on an
-    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-     KIND, either express or implied.  See the License for the
-    specific language governing permissions and limitations
-    under the License.
--->
 <html>
     <head>
         <!--
@@ -37,46 +19,44 @@
     </head>
     <body>
         <div class="app">
-            <?php
-                    $city_id=29642; // id города
-                    $data_file="http://export.yandex.ru/weather-ng/forecasts/$city_id.xml"; // адрес xml файла
-
-                              $xml = simplexml_load_file($data_file); // раскладываем xml на массив
-
-
-                    // выбираем требуемые параметры (город, температура, пиктограмма и тип погоды текстом (облачно, ясно)
-
-                    $city=$xml->fact->station;
-                            $temp=$xml->fact->temperature;
-                            $pic=$xml->fact->image;
-                            $type=$xml->fact->weather_type;
-
-                            // Если значение температуры положительно, для наглядности добавляем "+"
-                            if ($temp>0) {$temp='+'.$temp;}
-
-            ?>
-
-
-            <div id="weather">
-                <?php
-                echo ("<a href=\"http://pogoda.yandex.ru/$city_id/\">$city</a>");
-                echo ("<img src=\"http://img.yandex.net/i/wiz$pic.png\" alt=\"$type\" title=\"$type\">$temp<sup>o</sup>C");
-                ?>
-            </div>
-            <h1>Санкт-Петербург</h1>
-            <div class="weather">
-                <div class="temp">+24 °C</div>
-                <div class="wind">Ветер: 6,0 м/с ЮЗ</div>
-                <div class="humidity">Влажность: 44%</div>
-                <div class="pressure">Давление: 765 мм рт. ст.</div>
-            </div>
-            <div class="hint">
-                <div class="inner">
-                    askp masopd as
+            <div class="app-main">
+                <div id="open-menu" class="open-menu"></div>
+                <div class="menu" id="menu">
+                    <div class="menu-inner">
+                        <ul id="savedCities" class="savedCities">
+                            <li>Санкт-Петербург</li>
+                            <li>Москва</li>
+                            <li>Череповец</li>
+                        </ul>
+                        <div id="addCity" class="addCity">Добавить город...</div>
+                    </div>
+                </div>
+                <div class="header">
+                    <button id="button-menu" class="menu-button">
+                        <span class="lines">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </span>
+                    </button>
+                    <h1 id="cityName">Санкт-Петербург</h1>
+                </div>
+                <div class="weather">
+                    <div class="temp">+24 °C</div>
+                    <div class="wind">Ветер: 6,0 м/с ЮЗ</div>
+                    <div class="humidity">Влажность: 44%</div>
+                    <div class="pressure">Давление: 765 мм рт. ст.</div>
+                </div>
+                <div class="hint">
+                    <div class="inner">
+                        askp masopd as
+                    </div>
                 </div>
             </div>
+            <div class="app-settings"></div>
         </div>
-        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/jquery.min.js"></script>
+        <script type="text/javascript" src="js/jquery.mobile-1.4.5.min.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
     </body>
 </html>
