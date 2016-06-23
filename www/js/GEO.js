@@ -26,7 +26,7 @@ var GEO = {
                 return this.parseGeolocation(result);
             }, this))
             .fail(function(error) {
-                Err.handle(error);
+                return new Error(error);
             });
     },
 

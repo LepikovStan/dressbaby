@@ -18,39 +18,104 @@
  */
 
 var app = {
+	
+	start: function() {
+		document.addEventListener('deviceready', $.proxy(this.initialize, this), false);
+	},
+	
     // Application Constructor
     initialize: function() {
         this.initElems();
         this.bindEvents();
-        GEO.getCurrentPosition(
+		this.initLocation();
+		this.initSavedLocalities();
+    },
+	
+	initSavedLocalities: function() {
+		this.getLocalitiesFromPrefs()
+			.then($.proxy(function(result) {
+				this.savedLocalities = result;
+				for (var cityName in result) {
+					this.savedCities.append('<li>'+cityName+'</li>');
+				}
+			}, this));
+	},
+	
+	initLocation: function() {
+		this.getCurrentLocalityFromPrefs()
+			.then($.proxy(function(value) {
+				if (value) {
+					this.changeCityName(value);
+				} else {
+					this.getLocationFromGeolocation();
+				}
+			}, this), function(error) {
+				Err.handle(error);
+			});
+	},
+	
+	getLocationFromGeolocation: function(callback) {
+		GEO.getCurrentPosition(
             $.proxy(function(coords) {
-                console.log('coords', coords);
                 GEO.getCurrentCity(coords)
                     .then($.proxy(function(res) {
                         if (res instanceof Error) {
                             Err.handle(res)
                         } else {
+							this.saveLocation(res, coords)
                             this.changeCityName(res);
                         }
-                    }, this));
+                    }, this))
+					.fail(function(error) {
+						Err.handle(error)
+					});
             }, this),
             function(error) {
                 Err.handle(error);
             }
         );
-    },
+	},
+	
+	getCurrentLocalityFromPrefs: function() {
+		return this.prefs.fetch('currentLocality');
+	},
+	
+	getLocalitiesFromPrefs: function() {
+		return this.prefs.fetch('locality')
+			.then(function(result) {
+				return JSON.parse(result);
+			});
+	},
+	
+	saveLocation: function(locality, coords) {
+		return this.getLocalitiesFromPrefs()
+			.then($.proxy(function(result) {
+				if (!result) {
+					result = {}
+				}
+				result[locality] = {locality: locality, coords: coords}
+				result = JSON.stringify(result);
+				this.prefs.store('locality', result)
+					.then($.proxy(function() {
+						this.prefs.store('currentLocality', locality);
+					}, this));
+			}, this));
+	},
 
     initElems: function() {
         this.menu = $('#menu');
         this.openMenuEl = $('#open-menu');
         this.buttonMenu = $('#button-menu');
-        this.savedCities = $('#savedCities li');
+		this.savedCities = $('#savedCities');
+        this.savedCitiesItem = $('#savedCities li');
         this.cityName = $('#cityName');
+		
+		this.prefs = plugins.appPreferences;
     },
 
     bindEvents: function() {
         this.buttonMenu.on('tap', $.proxy(this.openMenu, this));
-        this.savedCities.on('tap', $.proxy(function(e) {
+        this.savedCities.on('tap', 'li', $.proxy(function(e) {
             var $target = $(e.target),
                 opts = {
                     cityName: $target.text()
@@ -62,9 +127,12 @@ var app = {
         this.menu.on('swipeleft', $.proxy(this.closeMenu, this));
         this.openMenuEl.on('swiperight', $.proxy(this.openMenu, this));
     },
-
+	
     loadCityWeather: function(params) {
-        this.changeCityName(params.cityName);
+		this.saveLocation(params.cityName, this.savedLocalities[params.cityName].coords)
+			.then($.proxy(function() {
+				this.changeCityName(params.cityName);
+			}, this));
         this.closeMenu()
     },
 
@@ -85,5 +153,5 @@ var app = {
 };
 
 $(function() {
-    app.initialize();
+    app.start();
 });
