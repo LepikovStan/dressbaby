@@ -16,19 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 var app = {
     // Application Constructor
     initialize: function() {
         this.initElems();
         this.bindEvents();
-	navigator.geolocation.getCurrentPosition(function(res) {
-		console.log('res', res);
-	var coords = [res.coords.longitude,res.coords.latitude]
-	console.log('https://geocode-maps.yandex.ru/1.x/?geocode='+coords.join(',')+'&format=json');
-	$.getJSON('https://geocode-maps.yandex.ru/1.x/?geocode='+coords.join(',')+'&format=json', function(result) {
-		console.log(result);
-	});
-	})
+        GEO.getCurrentPosition(
+            $.proxy(function(coords) {
+                console.log('coords', coords);
+                GEO.getCurrentCity(coords)
+                    .then($.proxy(function(res) {
+                        if (res instanceof Error) {
+                            Err.handle(res)
+                        } else {
+                            this.changeCityName(res);
+                        }
+                    }, this));
+            }, this),
+            function(error) {
+                Err.handle(error);
+            }
+        );
     },
 
     initElems: function() {
@@ -60,7 +69,11 @@ var app = {
     },
 
     changeCityName: function (cityName) {
-        this.cityName.text(cityName);
+        if  (cityName) {
+            this.cityName.text(cityName);
+        } else {
+            Err.handle(new Error('Не указано название населённого пункта для отображения'))
+        }
     },
 
     openMenu: function() {
