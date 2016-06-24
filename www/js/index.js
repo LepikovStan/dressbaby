@@ -42,6 +42,8 @@ var app = {
 	},
 	
 	initLocation: function() {
+        this.getLocationFromGeolocation();
+
 		this.getCurrentLocalityFromPrefs()
 			.then($.proxy(function(value) {
 				if (value) {
@@ -62,7 +64,7 @@ var app = {
                         if (res instanceof Error) {
                             Err.handle(res)
                         } else {
-							this.saveLocation(res, coords)
+							this.saveLocation(res, coords);
                             this.changeCityName(res);
                         }
                     }, this))
@@ -70,9 +72,11 @@ var app = {
 						Err.handle(error)
 					});
             }, this),
-            function(error) {
+            $.proxy(function(error) {
                 Err.handle(error);
-            }
+                this.changeCityName('Местоположение не найдено');
+                this.loadCityWeather();
+            }, this)
         );
 	},
 	
@@ -93,7 +97,7 @@ var app = {
 				if (!result) {
 					result = {}
 				}
-				result[locality] = {locality: locality, coords: coords}
+				result[locality] = {locality: locality, coords: coords};
 				result = JSON.stringify(result);
 				this.prefs.store('locality', result)
 					.then($.proxy(function() {
@@ -109,8 +113,17 @@ var app = {
 		this.savedCities = $('#savedCities');
         this.savedCitiesItem = $('#savedCities li');
         this.cityName = $('#cityName');
-		
-		this.prefs = plugins.appPreferences;
+
+        this.temp = $('#temp ins');
+        this.tempValContainer = $('#temp fieldset');
+        this.tempVal = $('#tempVal');
+        this.wind = $('#wind');
+        this.humidity = $('#humidity');
+        this.pressure = $('#pressure');
+
+        if (window.plugins) {
+            this.prefs = plugins.appPreferences;
+        }
     },
 
     bindEvents: function() {
@@ -133,7 +146,25 @@ var app = {
 			.then($.proxy(function() {
 				this.changeCityName(params.cityName);
 			}, this));
-        this.closeMenu()
+        this.closeMenu();
+        this.renderWeather(params)
+    },
+
+    renderWeather: function(params) {
+        var unknown = 'неизвестно',
+            weatherParams = ['temp', 'wind', 'humidity', 'pressure'];
+
+        weatherParams.forEach($.proxy(function(val) {
+            if (params && params[val]) {
+                this[val].text(params);
+            } else {
+                this[val].text('');
+            }
+        }, this));
+
+        if (!params || !params.temp) {
+            this.tempValContainer.show();
+        }
     },
 
     changeCityName: function (cityName) {

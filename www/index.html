@@ -39,14 +39,20 @@
                     <h1 id="cityName">Поиск местонахождения...</h1>
                 </div>
                 <div class="weather">
-                    <div class="temp">+24 °C</div>
-                    <div class="wind">Ветер: 6,0 м/с ЮЗ</div>
-                    <div class="humidity">Влажность: 44%</div>
-                    <div class="pressure">Давление: 765 мм рт. ст.</div>
+                    <div class="temp" id="temp">
+                        <ins></ins>
+                        <fieldset>
+                            <label for="tempVal">Введите температуру</label>
+                            <input type="text" value="" id="tempVal" />
+                        </fieldset>
+                    </div>
+                    <div class="wind" id="wind"></div>
+                    <div class="humidity" id="humidity"></div>
+                    <div class="pressure" id="pressure"></div>
                 </div>
                 <div class="hint">
                     <div class="inner">
-                        askp masopd as
+                        hint
                     </div>
                 </div>
             </div>
@@ -55,6 +61,7 @@
 		<script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/jquery.min.js"></script>
         <script type="text/javascript" src="js/jquery.mobile-1.4.5.min.js"></script>
+        <script type="text/javascript" src="js/data.js"></script>
         <script type="text/javascript" src="js/Errors.js"></script>
         <script type="text/javascript" src="js/GEO.js"></script>
         <script type="text/javascript" src="js/index.js"></script>

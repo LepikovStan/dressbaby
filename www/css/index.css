@@ -62,8 +62,28 @@ h1 {
 .weather > div {
     margin-top: 5px;
 }
-.weather .temp {
+.weather .temp ins{
     font-size: 300%;
+}
+.weather .temp label {
+    color: #fff;
+    font-size: 100%;
+}
+.weather .temp fieldset {
+    display: none;
+    border: none;
+}
+.weather .temp input {
+    margin: 10px 0 0;
+    font-size: 300%;
+    background: none;
+    border: 1px solid #fff;
+    color: #fff;
+    padding: 5px;
+    width: 100px;
+}
+.weather .temp input:focus {
+    outline: none;
 }
 .hint {
     position: absolute;
