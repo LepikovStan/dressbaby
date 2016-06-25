@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -27,9 +27,49 @@ var app = {
     initialize: function() {
         this.initElems();
         this.bindEvents();
-		this.initLocation();
-		this.initSavedLocalities();
+		this.initTempBorders();
+		
+		if (navigator.onLine) {
+			this.getLocationFromGeolocation();
+			this.statusEl.text('online');
+		} else {
+			this.clearAll();
+			this.statusEl.text('offline');
+		}
+
+		$('.ui-loader-default').remove();
+		
+		document.addEventListener('online', $.proxy(this.onDeviceOnline, this), false);
+		document.addEventListener('offline', $.proxy(this.onDeviceOffline, this), false);
     },
+	
+	getWeather: function() {
+		$.ajax({
+			type: "GET",
+			url: "http://flashgamesfreeplay.org/",
+			dataType: 'json',   
+			cache: false,
+			success: function(data) {
+				console.log(data);
+			} 
+		});
+	},
+	
+	onDeviceOnline: function() {
+		this.getLocationFromGeolocation();
+		this.statusEl.text('online');
+	},
+	
+	onDeviceOffline: function() {
+		this.clearAll();
+		this.changeCityName('Местоположение не найдено');
+		this.statusEl.text('offline');
+	},
+	
+	initTempBorders: function() {
+		this.tempMin = -5;
+		this.tempMax = 25;
+	},
 	
 	initSavedLocalities: function() {
 		this.getLocalitiesFromPrefs()
@@ -41,21 +81,6 @@ var app = {
 			}, this));
 	},
 	
-	initLocation: function() {
-        this.getLocationFromGeolocation();
-
-		this.getCurrentLocalityFromPrefs()
-			.then($.proxy(function(value) {
-				if (value) {
-					this.changeCityName(value);
-				} else {
-					this.getLocationFromGeolocation();
-				}
-			}, this), function(error) {
-				Err.handle(error);
-			});
-	},
-	
 	getLocationFromGeolocation: function(callback) {
 		GEO.getCurrentPosition(
             $.proxy(function(coords) {
@@ -64,8 +89,9 @@ var app = {
                         if (res instanceof Error) {
                             Err.handle(res)
                         } else {
-							this.saveLocation(res, coords);
                             this.changeCityName(res);
+							this.loadCityWeather(res);
+							this.tempValContainer.hide();
                         }
                     }, this))
 					.fail(function(error) {
@@ -75,9 +101,18 @@ var app = {
             $.proxy(function(error) {
                 Err.handle(error);
                 this.changeCityName('Местоположение не найдено');
-                this.loadCityWeather();
+				this.clearAll();
             }, this)
         );
+	},
+	
+	clearAll: function() {
+        this.renderWeather();
+		this.renderHint();
+		this.windEl.hide();
+        this.humidityEl.hide();
+        this.pressureEl.hide();
+		this.tempValContainer.show();
 	},
 	
 	getCurrentLocalityFromPrefs: function() {
@@ -90,36 +125,23 @@ var app = {
 				return JSON.parse(result);
 			});
 	},
-	
-	saveLocation: function(locality, coords) {
-		return this.getLocalitiesFromPrefs()
-			.then($.proxy(function(result) {
-				if (!result) {
-					result = {}
-				}
-				result[locality] = {locality: locality, coords: coords};
-				result = JSON.stringify(result);
-				this.prefs.store('locality', result)
-					.then($.proxy(function() {
-						this.prefs.store('currentLocality', locality);
-					}, this));
-			}, this));
-	},
 
     initElems: function() {
-        this.menu = $('#menu');
-        this.openMenuEl = $('#open-menu');
-        this.buttonMenu = $('#button-menu');
-		this.savedCities = $('#savedCities');
-        this.savedCitiesItem = $('#savedCities li');
         this.cityName = $('#cityName');
 
         this.temp = $('#temp ins');
         this.tempValContainer = $('#temp fieldset');
         this.tempVal = $('#tempVal');
-        this.wind = $('#wind');
-        this.humidity = $('#humidity');
-        this.pressure = $('#pressure');
+        this.wind = $('#wind ins');
+        this.humidity = $('#humidity ins');
+        this.pressure = $('#pressure ins');
+		
+        this.windEl = $('#wind');
+        this.humidityEl = $('#humidity');
+        this.pressureEl = $('#pressure');
+		this.statusEl = $('#status');
+		
+		this.hint = $('#hint');
 
         if (window.plugins) {
             this.prefs = plugins.appPreferences;
@@ -127,44 +149,72 @@ var app = {
     },
 
     bindEvents: function() {
-        this.buttonMenu.on('tap', $.proxy(this.openMenu, this));
-        this.savedCities.on('tap', 'li', $.proxy(function(e) {
-            var $target = $(e.target),
-                opts = {
-                    cityName: $target.text()
-                };
-
-            this.loadCityWeather(opts);
-        }, this));
-
-        this.menu.on('swipeleft', $.proxy(this.closeMenu, this));
-        this.openMenuEl.on('swiperight', $.proxy(this.openMenu, this));
+		this.tempVal.on('input', $.proxy(function() {
+			this.renderHint(this.tempVal.val());
+		}, this));
     },
 	
-    loadCityWeather: function(params) {
-		this.saveLocation(params.cityName, this.savedLocalities[params.cityName].coords)
-			.then($.proxy(function() {
-				this.changeCityName(params.cityName);
+    loadCityWeather: function(cityName) {
+		this.loadWeather(cityName)
+			.then($.proxy(function(result) {
+				this.renderWeather(result);
+				this.renderHint(result.temp);
 			}, this));
-        this.closeMenu();
-        this.renderWeather(params)
     },
+	
+	loadWeather: function(cityName) {
+		return {
+			then: function(cb) {
+				cb({
+					temp: 11,
+					wind: 2
+				});
+			}
+		}
+	},
+	
+	renderHint: function(temp) {
+		temp = parseFloat(temp);
+		
+		if (!temp || isNaN(temp)) {
+			this.hint.text('');
+			return;
+		}
+		var hint = '';
+		
+		if (temp < this.tempMin) {
+			hint = 'Одевать теплее, сокращать время прогулки, щупать носик. Помните что ребёнок не двигается!';
+		}
+		else if (temp > this.tempMax) {
+			hint = 'Горячо!';
+		}
+		else {
+			for (var i in data) {
+				var tempBorders = i.split(':');
+				
+				if (temp >= tempBorders[0] && temp <= tempBorders[1]) {
+					hint = data[i];
+				}
+			}
+		}
+		this.hint.text(hint);
+	},
 
     renderWeather: function(params) {
-        var unknown = 'неизвестно',
-            weatherParams = ['temp', 'wind', 'humidity', 'pressure'];
+        var weatherParams = ['temp', 'wind', 'humidity', 'pressure'];
 
         weatherParams.forEach($.proxy(function(val) {
             if (params && params[val]) {
-                this[val].text(params);
+                this[val].text(params[val]);
+				this[val].show();
             } else {
                 this[val].text('');
             }
         }, this));
-
-        if (!params || !params.temp) {
-            this.tempValContainer.show();
-        }
+		
+		if (params && params.temp) {
+			this.temp.text(this.temp.text() + '°C')
+		}
     },
 
     changeCityName: function (cityName) {
@@ -173,13 +223,6 @@ var app = {
         } else {
             Err.handle(new Error('Не указано название населённого пункта для отображения'))
         }
-    },
-
-    openMenu: function() {
-        this.menu.addClass('open');
-    },
-    closeMenu: function() {
-        this.menu.removeClass('open');
     }
 };
 

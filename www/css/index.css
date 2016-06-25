@@ -65,6 +65,9 @@ h1 {
 .weather .temp ins{
     font-size: 300%;
 }
+.weather ins {
+	text-decoration: none;
+}
 .weather .temp label {
     color: #fff;
     font-size: 100%;
@@ -85,6 +88,9 @@ h1 {
 .weather .temp input:focus {
     outline: none;
 }
+.weather .wind {display: none}
+.weather .humidity {display: none}
+.weather .pressure {display: none}
 .hint {
     position: absolute;
     bottom: 0;
@@ -97,7 +103,7 @@ h1 {
     padding: 15px
 }
 .header {
-    padding: 0 0 0 45px
+    padding: 0 0 0 15px
 }
 .menu-button {
     position: absolute;
@@ -175,6 +181,13 @@ h1 {
 }
 .app-settings {
     display: none;
+}
+.status {
+	color: #fff;
+	margin: -5px 0 0;
+}
+.ui-loader-default {
+	display: none;
 }
 /*body {*/
     /*-webkit-touch-callout: none;                *//* prevent callout to copy image, etc when tap to hold */

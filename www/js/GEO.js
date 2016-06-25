@@ -60,6 +60,6 @@ var GEO = {
             var coords = [res.coords.longitude,res.coords.latitude];
 
             success(coords)
-        }, fail);
+        }, fail, { maximumAge: 3000, timeout: 5000, enableHighAccuracy: true });
     }
 };

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
     <head>
         <!--
@@ -19,24 +19,11 @@
     </head>
     <body>
         <div class="app">
+			<!--div id="debug">debug</div-->
             <div class="app-main">
-                <div id="open-menu" class="open-menu"></div>
-                <div class="menu" id="menu">
-                    <div class="menu-inner">
-                        <ul id="savedCities" class="savedCities"></ul>
-                        <div id="addCity" class="addCity">Добавить местоположение...</div>
-                    </div>
-                </div>
                 <div class="header">
-                    <button id="button-menu" class="menu-button">
-                        <span class="aligner"></span>
-                        <span class="lines">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </span>
-                    </button>
                     <h1 id="cityName">Поиск местонахождения...</h1>
+					<div class="status" id="status"></div>
                 </div>
                 <div class="weather">
                     <div class="temp" id="temp">
@@ -46,17 +33,15 @@
                             <input type="text" value="" id="tempVal" />
                         </fieldset>
                     </div>
-                    <div class="wind" id="wind"></div>
-                    <div class="humidity" id="humidity"></div>
-                    <div class="pressure" id="pressure"></div>
+                    <div class="wind" id="wind">Ветер: <ins></ins></div>
+                    <div class="humidity" id="humidity">Влажность: <ins></ins></div>
+                    <div class="pressure" id="pressure">Давление: <ins></ins></div>
                 </div>
                 <div class="hint">
-                    <div class="inner">
-                        hint
-                    </div>
+                    <div class="inner" id="hint"></div>
                 </div>
             </div>
-            <div class="app-settings"></div>
+            <!--div class="app-settings"></div-->
         </div>
 		<script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/jquery.min.js"></script>
