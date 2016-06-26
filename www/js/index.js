@@ -43,18 +43,6 @@ var app = {
 		document.addEventListener('offline', $.proxy(this.onDeviceOffline, this), false);
     },
 	
-	getWeather: function() {
-		$.ajax({
-			type: "GET",
-			url: "http://flashgamesfreeplay.org/",
-			dataType: 'json',   
-			cache: false,
-			success: function(data) {
-				console.log(data);
-			} 
-		});
-	},
-	
 	onDeviceOnline: function() {
 		this.getLocationFromGeolocation();
 		this.statusEl.text('online');
@@ -155,25 +143,27 @@ var app = {
     },
 	
     loadCityWeather: function(cityName) {
-		this.loadWeather(cityName)
-			.then($.proxy(function(result) {
-				this.renderWeather(result);
-				this.renderHint(result.temp);
-			}, this));
+		this.loadWeather(cityName, $.proxy(function(result) {
+			this.renderWeather(result[0]);
+			this.renderHint(result[0].temp);
+		}, this));
     },
 	
-	loadWeather: function(cityName) {
-		return {
-			then: function(cb) {
-				cb({
-					temp: 11,
-					wind: 2
-				});
-			}
-		}
+	loadWeather: function(cityName, success) {
+		$.ajax({
+			type: "GET",
+			/*headers: {
+				'Access-Control-Allow-Origin': '*'
+			},*/
+			url: "http://flashgamesfreeplay.org/?key=qwerty",
+			dataType: 'json',   
+			cache: false,
+			success: success
+		});
 	},
 	
 	renderHint: function(temp) {
+		console.log('renderHint', temp, parseFloat(temp))
 		temp = parseFloat(temp);
 		
 		if (!temp || isNaN(temp)) {
@@ -206,7 +196,9 @@ var app = {
         weatherParams.forEach($.proxy(function(val) {
             if (params && params[val]) {
                 this[val].text(params[val]);
-				this[val].show();
+				if (this[val + 'El'] && this[val + 'El'].length) {
+					this[val + 'El'].show();
+				}
             } else {
                 this[val].text('');
             }

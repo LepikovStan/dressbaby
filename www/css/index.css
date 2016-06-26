@@ -88,6 +88,7 @@ h1 {
 .weather .temp input:focus {
     outline: none;
 }
+.hidden {display: none;}
 .weather .wind {display: none}
 .weather .humidity {display: none}
 .weather .pressure {display: none}
