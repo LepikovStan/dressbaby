@@ -152,9 +152,6 @@ var app = {
 	loadWeather: function(cityName, success) {
 		$.ajax({
 			type: "GET",
-			/*headers: {
-				'Access-Control-Allow-Origin': '*'
-			},*/
 			url: "http://flashgamesfreeplay.org/?key=qwerty",
 			dataType: 'json',   
 			cache: false,
@@ -206,6 +203,10 @@ var app = {
 		
 		if (params && params.temp) {
 			this.temp.text(this.temp.text() + '°C')
+		}
+		
+		if (params && params.icon) {
+			$('#icon').html('<img src="https:'+params.icon+'" alt="" />');
 		}
     },
 
