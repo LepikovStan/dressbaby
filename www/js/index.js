@@ -130,6 +130,7 @@ var app = {
 		this.statusEl = $('#status');
 		
 		this.hint = $('#hint');
+        this.weatherError = $('.weather .error');
 
         if (window.plugins) {
             this.prefs = plugins.appPreferences;
@@ -143,24 +144,47 @@ var app = {
     },
 	
     loadCityWeather: function(cityName) {
-		this.loadWeather(cityName, $.proxy(function(result) {
-			this.renderWeather(result[0]);
-			this.renderHint(result[0].temp);
-		}, this));
+        var hoursList = [0,3,6,9,12,15,18,21],
+            timeHour = parseInt(new Date().getHours()),
+            resultIndex = 0;
+
+        hoursList.forEach(function(val, i) {
+            if (timeHour <= val && timeHour >= hoursList[i-1]) {
+                resultIndex = i - 1;
+            }
+        });
+
+        if (timeHour >= hoursList[hoursList.length-1]) {
+            resultIndex = hoursList.length - 1;
+        }
+
+		this.loadWeather(cityName,
+            $.proxy(function(result) {
+                this.renderWeather(result[resultIndex]);
+                this.renderHint(result[resultIndex].temp);
+                this.weatherError.hide();
+		    }, this),
+            $.proxy(function(error) {
+                this.clearAll();
+                this.weatherError.show();
+            }, this)
+        );
     },
 	
-	loadWeather: function(cityName, success) {
+	loadWeather: function(cityName, success, fail) {
+        // 1baf7bd75889db55c690ceda0bb54294
+
 		$.ajax({
 			type: "GET",
-			url: "http://flashgamesfreeplay.org/?key=qwerty",
+			url: "http://flashgamesfreeplay.org/?key=1baf7bd75889db55c690ceda0bb54294",
 			dataType: 'json',   
 			cache: false,
-			success: success
+			success: success,
+            error: fail
 		});
 	},
 	
 	renderHint: function(temp) {
-		console.log('renderHint', temp, parseFloat(temp))
 		temp = parseFloat(temp);
 		
 		if (!temp || isNaN(temp)) {
@@ -204,6 +228,12 @@ var app = {
 		if (params && params.temp) {
 			this.temp.text(this.temp.text() + '°C')
 		}
+
+        if (params && params.windDir) {
+            this.windEl.find('.dir').text(', ' + params.windDir);
+        } else {
+            this.windEl.find('.dir').text('');
+        }
 		
 		if (params && params.icon) {
 			$('#icon').html('<img src="https:'+params.icon+'" alt="" />');

@@ -27,6 +27,7 @@ body {
     -webkit-user-select: none;
 
     background-color: #42aaff;
+    /*background-color: #C3E4F6;*/
     /*background-image:-webkit-radial-gradient(top right, 100px 100px, yellow, #42aaff);*/
     /*background-image:-ms-linear-gradient(top, #42aaff 0%, #fff 75%);*/
     /*background-image:-webkit-gradient(*/
@@ -84,6 +85,9 @@ h1 {
     color: #fff;
     padding: 5px;
     width: 100px;
+}
+.weather .error {
+    display: none;
 }
 .weather .temp input:focus {
     outline: none;
