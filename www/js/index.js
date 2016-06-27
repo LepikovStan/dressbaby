@@ -176,7 +176,7 @@ var app = {
 
 		$.ajax({
 			type: "GET",
-			url: "http://flashgamesfreeplay.org/?key=1baf7bd75889db55c690ceda0bb54294",
+			url: "http://flashgamesfreeplay.org/?key=1baf7bd75889db55c690ceda0bb54294&city="+cityName.toLowerCase(),
 			dataType: 'json',   
 			cache: false,
 			success: success,
