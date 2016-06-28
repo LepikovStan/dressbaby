@@ -174,9 +174,10 @@ var app = {
 	loadWeather: function(cityName, success, fail) {
         // 1baf7bd75889db55c690ceda0bb54294
 
+        console.log(Cities[cityName.toLowerCase(), cityName.toLowerCase()]);
 		$.ajax({
 			type: "GET",
-			url: "http://flashgamesfreeplay.org/?key=1baf7bd75889db55c690ceda0bb54294&city="+cityName.toLowerCase(),
+			url: "http://flashgamesfreeplay.org/?key=1baf7bd75889db55c690ceda0bb54294&cityId="+Cities[cityName.toLowerCase()],
 			dataType: 'json',   
 			cache: false,
 			success: success,
@@ -236,8 +237,10 @@ var app = {
         }
 		
 		if (params && params.icon) {
-			$('#icon').html('<img src="https:'+params.icon+'" alt="" />');
-		}
+			$('#icon').html('<img src="https:'+params.icon+'" alt="" />').show();
+		} else {
+            $('#icon').hide()
+        }
     },
 
     changeCityName: function (cityName) {
